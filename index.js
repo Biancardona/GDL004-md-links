@@ -1,15 +1,21 @@
 const fs = require('fs');
 const path = require('path');
-//let mdLinks = {};
+const mdLinks = process.argv[2];
 
-var ext = path.extname('index.js');
+
+console.log(mdLinks);
+const ext = path.extname(mdLinks);
 console.log(ext);
-
 if (ext === '.md') {
-  fs.readFile('README.md', 'utf8',(err, data) => {
-    if (err) { throw err; }
+  fs.readFile(mdLinks, 'utf8', (err, data) => {
     console.log('data: ', data);
-  });
-  console.log('the file is read');
+    console.log('the file is read');
+    if (err) {
+      throw err;
+    }
+});
+} else {
+  console.log('Is not a .MD file');
 }
+
 

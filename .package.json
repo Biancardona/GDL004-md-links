@@ -34,8 +34,10 @@
 
   },
   "directories": {
-    "bin": "./bin",
-    "test": "test"
+    "bin":{
+
+    }
+
   },
   "repository": {
     "type": "git",
