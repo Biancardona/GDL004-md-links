@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const mdLinks = process.argv[2];
+const fetch = require('node-fetch');
+
+
 
 const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm
 
@@ -20,6 +23,9 @@ if (ext === '.md') {
       //console.log(`Match #${i}:`, text)
       console.log(`Word  #${i}: ${text[1]}`)
       console.log(`Link  #${i}: ${text[2]}`)
+      fetch(text[2])
+        .then(checkStatus)
+        .catch(error => console.log(error))
     }
     if (err) {
       throw err;
@@ -27,4 +33,16 @@ if (ext === '.md') {
   });
 } else {
   console.log('Is not a .MD file');
+}
+
+
+function checkStatus(res) {
+  if (res.status >= 200 && res.status < 300) {
+    console.log(res.status)
+    return res
+  } else {
+    let err = new Error(res.statusText)
+    err.response = res
+    throw err
+  }
 }
