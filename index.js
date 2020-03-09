@@ -13,48 +13,53 @@ if (ext === '.md') {
   const readFile = util.promisify(fs.readFile);
   readFile(mdLinks, 'utf8')
     .then((text) => {
-      console.log(text);
-  const matches = text.match(regexMdLinks)
-  //*** Regex para obtener los links con el texto ***
-  const singleMatch = /\[([^\[]+)\]\((.*)\)/
-  for (var i = 0; i < matches.length; i++) {
-    let text = singleMatch.exec(matches[i])
-    // *** Visualizacion de los links mas el texto con el retorno de la REGEX ***
-    linkResult = (text[2])
-    regexResult = (`#${i} File:  ${mdLinks} Text: ${text[1]} Link: ${text[2]}`);
-    console.log(linkResult);
-    }
-  });
+      //console.log(text);
+      const matches = text.match(regexMdLinks)
+      //*** Regex para obtener los links con el texto ***
+      const singleMatch = /\[([^\[]+)\]\((.*)\)/
+      for (var i = 0; i < matches.length; i++) {
+        let text = singleMatch.exec(matches[i])
+        // *** Visualizacion de los links mas el texto ***
+        const file = []
+        file.push(`${i} File: ${mdLinks}`);
+        const texto = []
+        texto.push(`Text: ${text[1]}`);
+        const links = []
+        links.push(text[2]);
+        console.log(links)
+      }
+    });
 } else {
   console.log('Is not a .MD file');
 }
 
-/*let validLinks = []
+let validLinks = []
 let invalidLinks = []
-/*const checkStatus = async (text[2]) => {
+
+// *** Funcion para checar el status del link ***
+const checkStatus = async (links) => {
   try {
-    const response = await fetch(text[2])
+    //*** Usando fetch para hacer peticion de extraer datos (link) ***
+    const response = await fetch(links)
     if (response.status < 400) {
       validLinks.push(response.url)
-      return Promise.resolve(response)
     } else {
       invalidLinks.push(response.url)
-      return await Promise.reject(new Error(response.statusText))
+       await Promise.reject(new Error(response.statusText))
     }
   } catch (error) {
-    console.log('Request failed', error);
+    console.log('Request failed1', error);
   }
 };
 checkStatus()
   .catch(function (error) {
     console.log('Request failed', error);
   });
-//Usando fetch para hacer peticion de extraer datos (link)
-// Funcion para checar el status del link
-//console.log(validLinks)
-//console.log(invalidLinks)
-console.log('Valid Links: ', validLinks)
-console.log('Invalid Links: ', invalidLinks)
+
+console.log(validLinks)
+console.log(invalidLinks)
+//console.log('Valid Links: ', validLinks)
+//console.log('Invalid Links: ', invalidLinks)
 
 /*Promise.all(checkStatus).then(() => {
 
