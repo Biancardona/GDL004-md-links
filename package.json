@@ -31,14 +31,11 @@
     "serve": "^11.0.2"
   },
   "dependencies": {
-
+"node-fetch": "^2.6.0"
   },
   "directories": {
-    "bin":{
-
-    }
-
-  },
+    "bin": {
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Biancardona/GDL004-md-links.git"

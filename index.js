@@ -4,62 +4,67 @@ const mdLinks = process.argv[2];
 const fetch = require('node-fetch');
 const util = require("util");
 
+
+
 //*** Regex global para leer los links ***
 const regexMdLinks = /\[([^\[]+)\](\(.*\))/gm
 
-//*** Para verificar la extension del archivo ***
-const ext = path.extname(mdLinks);
-if (ext === '.md') {
-  const readFile = util.promisify(fs.readFile);
-  readFile(mdLinks, 'utf8')
-    .then((text) => {
-      //console.log(text);
-      const matches = text.match(regexMdLinks)
-      //*** Regex para obtener los links con el texto ***
-      const singleMatch = /\[([^\[]+)\]\((.*)\)/
-      for (var i = 0; i < matches.length; i++) {
-        let text = singleMatch.exec(matches[i])
-        // *** Visualizacion de los links mas el texto ***
-        const file = []
-        file.push(`${i} File: ${mdLinks}`);
-        const texto = []
-        texto.push(`Text: ${text[1]}`);
-        const links = []
-        links.push(text[2]);
-        console.log(links)
-      }
-    });
-} else {
-  console.log('Is not a .MD file');
-}
 
 let validLinks = []
 let invalidLinks = []
 
-// *** Funcion para checar el status del link ***
-const checkStatus = async (links) => {
-  try {
-    //*** Usando fetch para hacer peticion de extraer datos (link) ***
-    const response = await fetch(links)
-    if (response.status < 400) {
-      validLinks.push(response.url)
-    } else {
-      invalidLinks.push(response.url)
-       await Promise.reject(new Error(response.statusText))
-    }
-  } catch (error) {
-    console.log('Request failed1', error);
-  }
-};
-checkStatus()
-  .catch(function (error) {
-    console.log('Request failed', error);
-  });
+const parseMdFile = (mdFile) => {
+  let links = [];
+  let file = [];
+  let texto = [];
 
-console.log(validLinks)
-console.log(invalidLinks)
-//console.log('Valid Links: ', validLinks)
-//console.log('Invalid Links: ', invalidLinks)
+  //*** Para verificar la extension del archivo ***
+  const ext = path.extname(mdFile);
+  if (ext === '.md') {
+    fs.readFile(mdFile, 'utf8', (err,text) => {
+    if(!err) {
+          const matches = text.match(regexMdLinks)
+          //*** Regex para obtener los links con el texto ***
+          const singleMatch = /\[([^\[]+)\]\((.*)\)/
+          for (var i = 0; i < matches.length; i++) {
+            let text = singleMatch.exec(matches[i])
+            // *** Visualizacion de los links mas el texto ***
+            file.push(`${i} File: ${mdLinks}`);
+            texto.push(`Text: ${text[1]}`);
+            links.push(text[2]);
+          }
+          checkStatus(links);
+          return links;
+        }
+      })
+} else {
+  console.log('Is not a .MD file');
+}
+}
+const checkStatus = async (links) => {
+  const urls = links.map(async url => {
+    try {
+      //*** Usando fetch para hacer peticion de extraer datos (link) ***
+      const response = await fetch(url)
+      if (response.status < 400) {
+        validLinks.push(response.url)
+      } else {
+        invalidLinks.push(response.url)
+        await Promise.reject(new Error(response.statusText))
+      }
+    } catch (error) {
+      invalidLinks.push(url)
+      console.log('Request failed1', error.message);
+    }
+  })
+  await Promise.all(urls)
+  console.log(`validLinks: `, validLinks);
+  console.log(`invalidLinks: `, invalidLinks);
+  }
+
+parseMdFile(mdLinks);
+
+
 
 /*Promise.all(checkStatus).then(() => {
 
